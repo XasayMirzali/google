@@ -1,0 +1,51 @@
+library(shiny)
+library(shinydashboard)
+library(openxlsx)
+library(plotly)
+library(gtrendsR)
+library(ggplot2)
+library(googleway)
+library(ggmap)
+
+shinyUI(
+  dashboardPage( skin = "green",
+    dashboardHeader(title = "Google Analiz", titleWidth = 300),
+    # Add a title using the title argument 
+    # Change the width of title using the titlewidth argument
+    # header can be disabled using the argument disable = TRUE
+    
+    
+    dashboardSidebar(
+      # add menu items to the sidebar
+      # menu items are like tabs when clicked open up a page in tab item
+      sidebarMenu(
+        menuItem(text = "Google ", tabName = "aut", icon=icon("building")),
+        menuItem("Data", tabName = "data", icon=icon("database"), badgeLabel = "new", badgeColor = "green"),
+        menuItem("Göstəricilər Paneli", tabName = "report", icon=icon("database")),
+        menuItem("Google Trends", tabName = "report2", icon=icon("chart-bar")),
+        menuItem("Pie Chart", tabName = "report3", icon=icon("chart-pie")),
+        menuItem("#####",  href = "http://www.socar.az/socar/az/home/", icon=icon("code"))
+        
+        # https://fontawesome.com/icons?d=gallery
+      )
+    ),
+    # sidebar can be hidden by using the argument collapsed=TRUE
+    
+    dashboardBody(
+      tabItems(
+        tabItem(tabName = "aut", h2("''Azneft'' İB İRD Rəisi: Filankesov Filankes"), h3("Salam")),
+        tabItem(tabName = "data", fileInput("file","Upload the file"),checkboxInput(inputId = 'header', label = 'Header', value = FALSE),
+                checkboxInput(inputId = "stringAsFactors", "stringAsFactors", FALSE),
+                
+                radioButtons(inputId = 'sep', label = 'Separator', choices = c(Comma=',',Semicolon=';',Tab='\t', Space=''), selected = ',')),
+        tabItem(tabName = "report", plotlyOutput("plot2")),
+        tabItem(tabName = "report2",plotlyOutput("goog"), plotOutput("map"), textInput("key","Açarsöz daxil edin:"),textInput("tarix","Tarix aralığı daxil edin(İl-ay-gün):"),
+                selectInput("source","Mənbəni seçin:",choices = list("web","news","images","youtube")),
+                selectInput("olk","Ölkəni seçin",choices = list("AZ","TR","RU","US"))),
+        tabItem(tabName = "report3")
+         
+        
+          
+      
+      ))))
+
