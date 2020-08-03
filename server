@@ -1,0 +1,73 @@
+library(shiny)
+library(shinydashboard)
+library(openxlsx)
+library(plotly)
+library(gtrendsR)
+library(ggplot2)
+library(googleway)
+library(ggmap)
+
+
+
+shinyServer(function(input, output, session){
+  
+  data <- reactive({
+    file1 <- input$file
+    if(is.null(file1)){return()} 
+    read.table(file=file1$datapath, sep=input$sep, header = input$header, stringsAsFactors = input$stringAsFactors)
+    
+  })
+  
+  # this reactive output contains the summary of the dataset and display the summary in table format
+  output$filedf <- renderTable({
+    if(is.null(data())){return ()}
+    input$file
+  })
+  
+  output$map<-renderPlot({
+    tr<-get_googlemap("Azerbaijan",zoom = 7,maptype = "hybrid")
+    s<-ggmap(tr)
+    s
+    
+    
+  })
+  
+  output$goog<-renderPlotly({
+    #country<-c('AZ')
+    #time<-("2020-01-01 2020-08-01")
+    #channel<-'web'
+    trends <- gtrends(input$key, gprop =input$source,geo=input$olk, time = input$tarix )
+    time_trend<-trends$interest_over_time
+    
+  
+  
+    plot<-plot_ly(y=time_trend$hits,x=time_trend$date,mode='lines',text = paste("Hits number"))
+    #plot<-ggplot(data=time_trend, aes(x=date, y=hits,group=keyword,col=keyword))+
+      #geom_line()+xlab('Time')+ylab('Relative Interest')+ theme_bw()+
+      #theme(legend.title = element_blank(),legend.position="bottom",legend.text=element_text(size=12))+ggtitle("Google Search Volume")
+    plot
+    
+  })
+  
+  output$plot2<-renderPlotly({
+    d<-table(data()$Department)
+    sal<-data.frame(cbind(d))
+    USPersonalExpenditure <- data.frame("Deps"=rownames(sal), sal)
+    data <- USPersonalExpenditure[,c('Deps', 'd')]
+    
+    fig <- plot_ly(data, labels = ~Deps, values = ~d, type = 'pie')
+    fig <- fig %>% layout(title = 'United States Personal Expenditures by Categories in 1960',
+                          xaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE),
+                          yaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE))
+    
+    
+    
+  })
+  
+  
+  output$meanage <- renderInfoBox({
+    infoBox(title = "Ortalama yaş ", 
+            value = mean(data()$Age),
+            fill = TRUE,color = "blue") })
+}
+)
